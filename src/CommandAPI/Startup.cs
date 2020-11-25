@@ -5,12 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using AutoMapper;
+using System;
+using Newtonsoft.Json.Serialization;
 
 namespace CommandAPI
 {
     public class Startup
     {
-        public IConfiguration Configuration {get;}
+        public IConfiguration Configuration { get; }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -19,9 +23,21 @@ namespace CommandAPI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<CommandContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("PostgreSqlConnection")));
+            var builder = new NpgsqlConnectionStringBuilder();
+            builder.ConnectionString = Configuration.GetConnectionString("PostgreSqlConnection");
+            builder.Username = Configuration["UserID"];
+            builder.Password = Configuration["Password"];
+            // services.AddDbContext<CommandContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("PostgreSqlConnection")));
+            services.AddDbContext<CommandContext>(opt => opt.UseNpgsql(builder.ConnectionString));
             //register services to enable the use of "Controllers" throughout the application.
-            services.AddControllers();
+            // configure the controllers to use newtonsoftjson
+            services.AddControllers().AddNewtonsoftJson(s =>
+            {
+                s.SerializerSettings.ContractResolver = new
+                CamelCasePropertyNamesContractResolver();
+            });
+            // add the AutoMapper service
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // //this configuration creates one MockCommandAPIRepo per request for one.
             // services.AddScoped<ICommandAPIRepo, MockCommandAPIRepo>();
             // add the real SqlCommandAPIRepo as a service
