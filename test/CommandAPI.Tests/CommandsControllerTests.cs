@@ -283,7 +283,7 @@ namespace CommandAPI.Tests
             //Act
             var result = controller.DeleteCommand(1);
             //Assert
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
