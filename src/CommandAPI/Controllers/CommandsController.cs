@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using CommandAPI.Dtos;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CommandAPI.Controllers
 {
@@ -32,6 +33,7 @@ namespace CommandAPI.Controllers
 
         //Add the following code for our second ActionResult
         //Name="GetCommandById" labels the method as "GetCommandById" for the nameof operator in the POST request
+        [Authorize]
         [HttpGet("{id}", Name = "GetCommandById")]
         public ActionResult<CommandReadDto> GetCommandById(int id)
         {
